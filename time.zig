@@ -3,7 +3,7 @@ const std = @import("std");
 pub const DateTime = struct {
     year: i64,
     month: u8,
-    day: u9,
+    day: u8,
     hour: u8,
     minute: u8,
     second: i64,
@@ -56,7 +56,7 @@ pub const DateTime = struct {
         const sec_per_hour = 60 * sec_per_min;
         const sec_per_day = 24 * sec_per_hour;
 
-        const hour: u8 = @intCast(@divTrunc(@rem(seconds, sec_per_day), sec_per_hour) - 3);
+        const hour: u8 = utc_hour_to_sao_paulo(@divTrunc(@rem(seconds, sec_per_day), sec_per_hour));
         const minute: u8 = @intCast(@divTrunc(@rem(seconds, sec_per_hour), sec_per_min));
         const second: u8 = @intCast(@rem(seconds, sec_per_min));
 
@@ -68,7 +68,7 @@ pub const DateTime = struct {
 
         const year: i64 = date.year;
         const month: u8 = get_month_number(date.day, is_leap);
-        const day: u9 = get_day(date.day, is_leap);
+        const day: u8 = get_day(date.day, is_leap);
 
         return DateTime{
             .year = year,
@@ -104,4 +104,11 @@ fn get_day(day_of_year: u9, is_leap: bool) u8 {
     const month = get_month_number(day_of_year, is_leap);
 
     return @intCast(@divTrunc(day_of_year, month));
+}
+
+fn utc_hour_to_sao_paulo(utc: i64) u8 {
+    if (utc >= 3) {
+        return @intCast(utc - 3);
+    }
+    return @intCast((utc + 24) - 3);
 }
