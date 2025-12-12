@@ -8,14 +8,11 @@ pub const DateTime = struct {
     minute: u8,
     second: i64,
 
-    pub fn printISO8601(this: DateTime) void {
-        const allocator = std.heap.c_allocator;
-
-        const buf = allocator.alloc(u8, 1024) catch {
-            std.process.exit(1);
+    pub fn toISO8601(this: DateTime, allocator: std.mem.Allocator) [] u8 {
+        var buf = allocator.alloc(u8, 20) catch {
+            std.debug.print("Allocation error", .{});
+            std.posix.exit(1);
         };
-
-        defer allocator.free(buf);
 
         buf[0] = @as(u8, @intCast('0' + @mod(@divTrunc(this.year, 1000), 10)));
         buf[1] = @as(u8, @intCast('0' + @mod(@divTrunc(this.year, 100), 10)));
@@ -43,7 +40,7 @@ pub const DateTime = struct {
         buf[18] = @as(u8, @intCast('0' + @mod(this.second, 10)));
         buf[19] = 'Z';
 
-        std.debug.print("{s}", .{buf});
+        return buf;
     }
 
     pub fn now() DateTime {
